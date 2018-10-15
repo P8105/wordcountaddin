@@ -272,8 +272,8 @@ text_stats_fn <- function(text){
                            koRpus  = c(l$n_words_korp, l$n_char_tot_korp, l$n_sentences_korp, l$reading_time_korp),
                            stringi = c(l$n_words_stri, l$n_char_tot_stri, "Not available", l$reading_time_stri)
                            )
-  
-  return(results_df_tab)
+
+  return(results_df)
 
 }
 
