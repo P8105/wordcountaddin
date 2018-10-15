@@ -19,7 +19,7 @@ knitr::opts_chunk$set(
 
 # wordcountaddin <img src="inst/logo.png" align="right" height="130" />
 
-** This is a fork of the [original package](https://github.com/benmarwick/wordcountaddin). The only change is that results of `wordcountaddin::text_stats` is a data frame rather than the result of `knitr::kable`; this change makes it possible to easily export word counts for many students submissions using `purrr` **
+**This is a fork of the [original package](https://github.com/benmarwick/wordcountaddin). The only change is that results of `wordcountaddin::text_stats` is a data frame rather than the result of `knitr::kable`; this change makes it possible to easily export word counts for many students submissions using `purrr`**
 
 This R package is an [RStudio addin](https://rstudio.github.io/rstudioaddins/) to count words and characters in text in an [R markdown](http://rmarkdown.rstudio.com/) document. It also has a function to compute readability statistics so you can get an indication of how easy or difficult your document is to read. 
 
