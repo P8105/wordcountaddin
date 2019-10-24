@@ -2,11 +2,15 @@
 wordcountaddin <img src="inst/logo.png" align="right" height="130" />
 =====================================================================
 
-**This is a fork of the [original
-package](https://github.com/benmarwick/wordcountaddin). The only change
-is that results of `wordcountaddin::text_stats` is a data frame rather
-than the result of `knitr::kable`; this change makes it possible to
-easily export word counts for many students submissions using `purrr`**
+
+[![Last-changedate](https://img.shields.io/badge/last%20change-2019--01--09-brightgreen.svg)](https://github.com/benmarwick/wordcountaddin/commits/master)
+[![minimal R
+version](https://img.shields.io/badge/R%3E%3D-3.5.2-brightgreen.svg)](https://cran.r-project.org/)
+[![Licence](https://img.shields.io/github/license/mashape/apistatus.svg)](http://choosealicense.com/licenses/mit/)
+[![Travis-CI Build
+Status](https://travis-ci.org/benmarwick/wordcountaddin.png?branch=master)](https://travis-ci.org/benmarwick/wordcountaddin)
+[![codecov.io](https://codecov.io/github/benmarwick/wordcountaddin/coverage.svg?branch=master)](https://codecov.io/github/benmarwick/wordcountaddin?branch=master)
+[![ORCiD](https://img.shields.io/badge/ORCiD-0000--0001--7879--4531-green.svg)](http://orcid.org/0000-0001-7879-4531)
 
 This R package is an [RStudio
 addin](https://rstudio.github.io/rstudioaddins/) to count words and
