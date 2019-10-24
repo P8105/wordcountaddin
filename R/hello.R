@@ -150,13 +150,15 @@ prep_text <- function(text){
   text <- gsub("[\r\n]", " ", text)
 
   # don't include front yaml
-  text <- gsub("^---.*^--- ", "", text) # make sure we only match when backticks are at the start of the line
+  text <- gsub("^---.*--- ", "", text) # make sure we only match when backticks are at the start of the line
 
   # don't include text in code chunks: https://regex101.com/#python
   text <- gsub("```\\{.+?\\}.+?```", "", text)
+  text <- gsub("``` \\{.+?\\}.+?```", "", text)
 
   # don't include text in in-line R code
   text <- gsub("`r.+?`", "", text)
+  text <- gsub("` r.+?`", "", text)
 
   # don't include HTML comments
   text <- gsub("<!--.+?-->", "", text)
