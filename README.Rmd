@@ -25,9 +25,9 @@ This R package is an [RStudio addin](https://rstudio.github.io/rstudioaddins/) t
 
 You can count words in your Rmd file in three ways:
 
-- In a selection of text in your active Rmd, by selecting some text with your mouse in in RStudio and using the Word count Addin   
-- All the words in your active Rmd in RStudio, by using the Word count Addin  with no text selected
-- All the words in an Rmd file, directly using the `word_count` function from the console or command line (RStudio not required), and specifiying the filename as an argument to the function (e.g. `wordcountaddin::text_stats("my_file.Rmd")`)
+- In a selection of text in your active Rmd, by selecting some text with your mouse in RStudio and using the Wordcount Addin   
+- All the words in your active Rmd in RStudio, by using the Wordcount Addin  with no text selected
+- All the words in an Rmd file, directly using the `word_count` function from the console or command line (RStudio not required), and specifiying the filename as an argument to the function (e.g. `wordcountaddin::word_count("my_file.Rmd")`). This will give you a single integer result, rather than the Markdown table that the other functions return. 
 
 Independent of an Rmd file, you can also count words in a character vector from the console using the `text_stats_chr` function (and there is `readability_chr` for readability). 
 
@@ -62,7 +62,7 @@ The output of the `Word count` function is a markdown table in your R console th
 |Reading time    |0.5 minutes |0.5 minutes   |
 ```
 
-If you want resuse these results in other R functions, you can use an unexported function like this `wordcountaddin:::text_stats_fn_(text)`, where `text` is a character vector of your text (with length one, ie. all your text in a single character string). The output will be a list object, and will include several other items not shown in the markdown table.
+If you want to reuse these results in other R functions, you can use an unexported function like this `wordcountaddin:::text_stats_fn_(text)`, where `text` is a character vector of your text (with length one, ie. all your text in a single character string). The output will be a list object, and will include several other items not shown in the markdown table.
 
 ## Readability 
 
@@ -107,7 +107,7 @@ The output of the `readability` function is a markdown table in your R console t
 |Wheeler-Smith         |            |18.33 |2     |     |
 ```
 
-Similar to the `word count` function, if you want resuse these results in other R functions, you can use an unexported function like this `wordcountaddin:::readability_fn_(text)`, where `text` is a character vector of your text (with length one, ie. all your text in a single character string). The output will be a list object with slightly more detail than the summary table above. 
+Similar to the `word count` function, if you want to reuse these results in other R functions, you can use an unexported function like this `wordcountaddin:::readability_fn_(text)`, where `text` is a character vector of your text (with length one, ie. all your text in a single character string). The output will be a list object with slightly more detail than the summary table above. 
 
 Inspiration for this addin came from [jadd](https://github.com/jennybc/jadd) and [WrapRmd](https://github.com/tjmahr/WrapRmd). 
 

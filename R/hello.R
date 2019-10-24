@@ -7,17 +7,9 @@
 #' @import purrr stringi koRpus
 NULL
 
-#-------------------------------------------------------------------
-# fns for working with selected text in an active Rmd
+# global things
 
-#' Get text stats for selected text (excluding code chunks and inline code)
-#'
-#' Call this addin to get a word count and some other stats about the text
-#'
-#' @export
-text_stats <- function(filename = "") {
-
-  md_file_ext_regex <- paste(
+ md_file_ext_regex <- paste(
     "\\.markdown$",
     "\\.mdown$",
     "\\.mkdn$",
@@ -31,104 +23,72 @@ text_stats <- function(filename = "") {
     "\\.RMD$",
   sep = "|")
 
-  text_to_count <-
 
-  if(nchar(filename) > 0){
-    # if a filename is supplied, check that it is a md or rmd file
-    if(!grepl(md_file_ext_regex, filename)){
-           stop(paste("The supplied file has a file extension which is not associated with markdown.",
-                      "This function only works with markdown or R markdown files.", sep = "\n  "))
-    } else {
-      # if we have an md or Rmd file, read it in as a character vector
-      paste(scan(filename, 'character', quiet = TRUE), collapse = " ")
-    }
+#-------------------------------------------------------------------
+# fns for working with selected text in an active Rmd
 
-    } else  {
-
-    # if we don'thave a filename, then work with current Rmd in RStudio
-    context <- rstudioapi::getActiveDocumentContext()
-
-    # get selection text and full text of Rmd
-    selection_text <- unname(unlist(context$selection)["text"])
-    entire_document_text <- paste(scan(context$path, 'character', quiet = TRUE), collapse = " ")
-
-    # if the selection has no characters (ie. there is no selection), then count the words in the full text of the Rmd
-      if(nchar(selection_text) > 0){
-        selection_text
-      } else  {
-        entire_document_text
-      }
-  }
-
-
-
-
-
-  text_stats_fn(text_to_count)
-}
-
-#' Get readability stats for selected text (excluding code chunks)
+#' Get text stats for selected text (excluding code chunks and inline code)
 #'
-#' Call this addin to get readbility stats about the text
+#' Call this addin to get a word count and some other stats about the text
+#' @param filename Path to the file on which to compute text stats.
+#' Default is the current file (when working in RStudio) or the file being
+#' knit (when compiling with \code{knitr}).
 #'
 #' @export
-readability <- function(filename = "") {
+#' @examples
+#' md <- system.file(package = "wordcountaddin", "NEWS.md")
+#' text_stats(md)
+#' word_count(md)
+#' \dontrun{
+#' readability(md)
+#' }
+text_stats <- function(filename = this_filename()) {
 
-  md_file_ext_regex <- paste(
-    "\\.markdown$",
-    "\\.mdown$",
-    "\\.mkdn$",
-    "\\.md$",
-    "\\.mkd$",
-    "\\.mdwn$",
-    "\\.mdtxt$",
-    "\\.mdtext$",
-    "\\.rmd$",
-    "\\.Rmd$",
-    "\\.RMD$",
-    sep = "|")
+  text_to_count_output <- text_to_count(filename)
 
-  text_to_count <-
+  text_stats_fn(text_to_count_output)
+}
 
-    if(nchar(filename) > 0){
-      # if a filename is supplied, check that it is a md or rmd file
-      if(!grepl(md_file_ext_regex, filename)){
-        stop(paste("The supplied file has a file extension which is not associated with markdown.",
-                   "This function only works with markdown or R markdown files.", sep = "\n  "))
-      } else {
-        # if we have an md or Rmd file, read it in as a character vector
-        paste(scan(filename, 'character', quiet = TRUE), collapse = " ")
-      }
 
-    } else  {
+#' @rdname text_stats
+#' @description Get a word count as a single integer
+#' @export
+word_count <- function(filename = this_filename()){
 
-      # if we don'thave a filename, then work with current Rmd in RStudio
-      context <- rstudioapi::getActiveDocumentContext()
+  text_to_count_output <- text_to_count(filename)
 
-      # get selection text and full text of Rmd
-      selection_text <- unname(unlist(context$selection)["text"])
-      entire_document_text <- paste(scan(context$path, 'character', quiet = TRUE), collapse = " ")
+  word_count_output <- text_stats_fn_(text_to_count_output)
 
-      # if the selection has no characters (ie. there is no selection), then count the words in the full text of the Rmd
-      if(nchar(selection_text) > 0){
-        selection_text
-      } else  {
-        entire_document_text
-      }
-    }
+  word_count_output$n_words_korp
+}
 
 
 
-  readability_fn(text_to_count)
+
+
+
+#' @rdname text_stats
+#' @description Get readability stats for selected text (excluding code chunks)
+#'
+#' @details Call this addin to get readbility stats about the text
+#'
+#' @export
+readability <- function(filename = this_filename(), quiet = TRUE) {
+
+
+  text_to_count_output <- text_to_count(filename)
+
+  readability_fn(text_to_count_output, quiet = TRUE)
 }
 
 #---------------------------------------------------------------
 # directly work on a character string in the console
 
 
-#' Get text stats for selected text (excluding code chunks and inline code)
+#' @rdname text_stats
+#' @description Get text stats for selected text (excluding code chunks and inline code)
 #'
-#' Use this function with a character string as input
+#' @details Use this function with a character string as input
 #'
 #' @export
 text_stats_chr <- function(text) {
@@ -140,22 +100,49 @@ text_stats_chr <- function(text) {
 }
 
 
-#' Get readability stats for selected text (excluding code chunks)
+#' @rdname text_stats
+#' @description Get readability stats for selected text (excluding code chunks)
 #'
-#' Use this function with a character string as input
+#' @details Use this function with a character string as input
 #'
 #' @param text a character string of text, length of one
 #'
 #' @export
-readability_chr <- function(text) {
+readability_chr <- function(text, quiet = TRUE) {
 
   text <- paste(text, collapse = "\n")
 
-  readability_fn(text)
+  readability_fn(text, quiet = TRUE)
 
 }
 #-----------------------------------------------------------
-# helper fns
+# helper fns, not exported
+
+text_to_count <- function(filename){
+  # selected text takes precedence over the filename argument:
+  # if text is selected, it is used. Otherwise, the text in filename is used
+  if (rstudioapi::isAvailable()) {
+    context <- rstudioapi::getActiveDocumentContext()
+    selection_text <- unname(unlist(context$selection)["text"])
+    text_is_selected <- nchar(selection_text) > 0
+  } else {
+    # if not running in RStudio, assume no text is selected
+    text_is_selected <- FALSE
+  }
+
+  if (text_is_selected) {
+    text <- selection_text
+  } else {
+    # if no text is selected, read text from "filename" as character vector
+    is_extension_invalid <- !grepl(md_file_ext_regex, filename)
+    if (is_extension_invalid) {
+      stop(paste("The supplied file has an extension which is not associated with markdown.",
+                 "This function only works with markdown or R markdown files.", sep = "\n  "))
+    }
+    text <- paste(scan(filename, 'character', quiet = TRUE), collapse = " ")
+  }
+  text
+}
 
 prep_text <- function(text){
 
@@ -163,7 +150,7 @@ prep_text <- function(text){
   text <- gsub("[\r\n]", " ", text)
 
   # don't include front yaml
-  text <- gsub("---.*--- ", "", text)
+  text <- gsub("^---.*^--- ", "", text) # make sure we only match when backticks are at the start of the line
 
   # don't include text in code chunks: https://regex101.com/#python
   text <- gsub("```\\{.+?\\}.+?```", "", text)
@@ -189,8 +176,16 @@ prep_text <- function(text){
   # don't include html tags
   text <- gsub("<.+?>|</.+?>", "", text)
 
-    # don't include percent signs because they trip up stringi
+  # don't include percent signs because they trip up stringi
   text <- gsub("%", "", text)
+
+  # don't include figures and tables inserted using plain LaTeX code
+  text <- gsub("\\\\begin\\{figure\\}(.*?)\\\\end\\{figure\\}", "", text)
+  text <- gsub("\\\\begin\\{table\\}(.*?)\\\\end\\{table\\}", "", text)
+
+  # don't count abbreviations as multiple words, but leave
+  # the period at the end in case it's the end of a sentence
+  text <- gsub("\\.(?=[a-z]+)", "", text, perl = TRUE)
 
   # don't include LaTeX \eggs{ham}
   # how to do? problem with capturing \x
@@ -207,15 +202,19 @@ prep_text <- function(text){
 }
 
 prep_text_korpus <- function(text){
-  requireNamespace("purrr")
-  tokenize_safe <- safely(tokenize)
-  k1 <- tokenize_safe(text, lang = 'en', format = 'obj')
+  lengths <- unlist(strsplit(text, " "))
+  no_long_one <- paste0(ifelse(nchar(lengths) > 30, substr(lengths, 1, 10), lengths), collapse = " ")
+  tokenize_safe <- purrr::safely(koRpus::tokenize)
+  k1 <- tokenize_safe(no_long_one, lang = 'en', format = 'obj')
   k1 <- k1$result
   return(k1)
 }
 
 
 # These functions do the actual work
+
+#' @rdname text_stats
+#' @export
 text_stats_fn_ <- function(text){
   # suppress warnings
   oldw <- getOption("warn")
@@ -223,9 +222,7 @@ text_stats_fn_ <- function(text){
 
   text <- prep_text(text)
 
-
-  requireNamespace("stringi")
-  requireNamespace("koRpus")
+  require("koRpus.lang.en", quietly = TRUE)
 
   # stringi methods
   n_char_tot <- sum(stri_stats_latex(text)[c(1,3)])
@@ -233,7 +230,7 @@ text_stats_fn_ <- function(text){
 
   #korpus methods
   k1 <- prep_text_korpus(text)
-  korpus_stats <- describe(k1)
+  korpus_stats <- sylly::describe(k1)
   k_nchr <- korpus_stats$all.chars
   k_wc <- korpus_stats$words
   k_sent <- korpus_stats$sentences
@@ -264,6 +261,7 @@ text_stats_fn_ <- function(text){
 }
 
 
+
 text_stats_fn <- function(text){
 
   l <- text_stats_fn_(text)
@@ -278,18 +276,16 @@ text_stats_fn <- function(text){
 }
 
 
-readability_fn_ <- function(text){
+readability_fn_ <- function(text, quiet = TRUE){
 
   text <- prep_text(text)
 
   oldw <- getOption("warn")
   options(warn = -1)
 
- requireNamespace("koRpus")
-
   # korpus methods
   k1 <- prep_text_korpus(text)
-  k_readability <- koRpus::readability(k1)
+  k_readability <- koRpus::readability(k1, quiet = TRUE)
 
 
   return(k_readability)
@@ -299,9 +295,9 @@ readability_fn_ <- function(text){
 }
 
 
-readability_fn <- function(text){
+readability_fn <- function(text, quiet = TRUE){
   # a more condensed overview of the results
-  k_readability <- readability_fn_(text)
+  k_readability <- readability_fn_(text, quiet = TRUE)
   readability_summary_table <- knitr::kable(summary(k_readability))
   return(readability_summary_table)
 

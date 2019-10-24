@@ -1,33 +1,41 @@
 Package: wordcountaddin
 Type: Package
 Title: Word counts and readability statistics in R markdown documents
-Version: 0.2.0
-Authors@R: c(person("Ben", "Marwick", 
+Version: 0.3.0.9000
+Authors@R: c(person("Ben", "Marwick",
                   email = "benmarwick@gmail.com",
                   role = c("aut", "cre")),
-            person("JooYoung", "Seo", 
-                  email = "sjysky@gmail.com", 
+            person("JooYoung", "Seo",
+                  email = "jooyoung@psu.edu",
+                  role = "ctb", comment = c(ORCID = "0000-0002-4064-6012")),
+            person("Henrik", "Bengtsson",
+                  email = "henrik.bengtsson@gmail.com",
                   role = "ctb"),
-            person("Henrik", "Bengtsson", 
-                  email = "henrik.bengtsson@gmail.com", 
+            person("Florian S.", "Schaffner",
+                  email = "florian.schaffner@outlook.com",
                   role = "ctb"))
 Maintainer: Ben Marwick <benmarwick@gmail.com>
-Description: This packages is an addin for RStudio that will count the words
-    and characters in a plain text document. It is designed for use with R markdown
-    documents and will exclude YAML header content, code chunks and inline code from
-    the counts. It also computes readability statistics so you can get an idea of
-    how easy or difficult your text is to read.
+Description: An addin for RStudio that will count the words and characters
+    in a plain text document. It is designed for use with RMarkdown
+    documents and will exclude YAML header content, code chunks and inline
+    code from the counts. It also computes readability statistics so you can
+    get an idea of how easy or difficult your text is to read.
 License: MIT + file LICENSE
 LazyData: TRUE
 Imports:
+    fs,
     knitr,
-    purrr,
-    stringi,
     koRpus,
-    shiny (>= 0.13),
+    koRpus.lang.en,
     miniUI (>= 0.1.1),
-    rstudioapi (>= 0.5)
-RoxygenNote: 6.0.1
+    purrr,
+    rstudioapi (>= 0.5),
+    shiny (>= 0.13),
+    stringi,
+    sylly,
+    sylly.en
+Encoding: UTF-8
+RoxygenNote: 6.1.1
 Suggests:
-    testthat,
-    covr
+    covr,
+    testthat
